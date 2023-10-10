@@ -21,7 +21,7 @@ const clips = ref<Clip[]>([])
 
 const load = async () => {
     try {
-        let data = await fetch('https://lostsons.tv/clips')
+        let data = await fetch('https://lostsons.tv/api/clips')
         if (!data.ok) {
             console.log("Failed fetching clips")
             throw Error('Failed fetching clips')
