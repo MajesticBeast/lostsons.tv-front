@@ -1,0 +1,31 @@
+name: ci
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    deploy:
+        name: Build and Deploy
+        runs-on: ubuntu-latest
+
+        env:
+            DO_REGISTRY_ENDPOINT: ${{ secrets.DO_REGISTRY_ENDPOINT }}
+
+        steps:          
+            - name: Check out main branch
+              uses: actions/checkout@v3
+
+            - name: Build docker image
+              run: docker build -t ${{ secrets.DO_REGISTRY_ENDPOINT }}/lostsonstv-front:latest .
+
+            - name: Install doctl
+              uses: digitalocean/action-doctl@v2
+              with:
+                token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+            - name: Log in to DigitalOcean Container Registry with short-lived credentials
+              run: doctl registry login --expiry-seconds 600
+              
+            - name: Push image to DigitalOcean Container Registry
+              run: docker push ${{ secrets.DO_REGISTRY_ENDPOINT }}/lostsonstv-front:latest
