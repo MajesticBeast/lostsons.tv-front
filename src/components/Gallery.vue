@@ -23,10 +23,15 @@ const load = async () => {
     try {
         let data = await fetch('https://lostsons.tv/api/clips')
         if (!data.ok) {
-            console.log("Failed fetching clips")
             throw Error('Failed fetching clips')
         }
-        clips.value = await data.json()
+        let clipsData = await data.json()
+        clips.value = clipsData.map((clip: Clip) => {
+            return {
+                ...clip,
+                tags: clip.tags.split(',').map(tag => tag.trim())
+            }
+        })
     }
     catch (err) {
         error.value = err.message
@@ -74,12 +79,9 @@ mux-player {
                     </p>
                 </div>
                 <div class="px-6 pt-4 pb-2">
-                    <span
-                        class="inline-block bg-gray-300 rounded-full px-3 py-1 text-xs font-semibold text-gray-700 mr-2 mb-2">#ambush</span>
-                    <span
-                        class="inline-block bg-gray-300 rounded-full px-3 py-1 text-xs font-semibold text-gray-700 mr-2 mb-2">#orgrimmar</span>
-                    <span
-                        class="inline-block bg-gray-300 rounded-full px-3 py-1 text-xs font-semibold text-gray-700 mr-2 mb-2">#druid</span>
+                    <span v-for="tag in clip.tags" :key="tag"
+                        class="inline-block bg-gray-300 rounded-full px-3 py-1 text-xs font-semibold text-gray-700 mr-2 mb-2">#{{
+                            tag }}</span>
                 </div>
             </div>
         </div>
